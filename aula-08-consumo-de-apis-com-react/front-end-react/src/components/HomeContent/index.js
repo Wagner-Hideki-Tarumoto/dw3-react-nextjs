@@ -1,4 +1,4 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import styles from "@/components/HomeContent/HomeContent.module.css";
 import Loading from "../Loading";
 //importandoa bilvioteca axios
@@ -24,33 +24,50 @@ const HomeContent = () => {
         //Delay de 3 segundo para mudar o estado para false
         setTimeout(() => setLoading(false), 3000)
       }
-      };
-      //Invocando a função dentro do useEffect
-      fetchGames();
+    };
+    //Invocando a função dentro do useEffect
+    fetchGames();
   }, []);
 
-  return (
-    <>
-      <div className={styles.homeContent}>
-        {/* CARD LISTA DE JOGOS */}
-        <div className={styles.listGamesCard}>
-          {/* TITLE */}
-          <div className={styles.title}>
-            <h2>Lista de jogos</h2>
-          </div>
-          {/* Ternário para ostrar a lista de jogos ou gif de carregamento */}
-          {/* Enviando a props "loading" para o componente extero */}
-          {loading ? (
-            <Loading loading= {loading} />
-          ) : (
-            <div className={styles.games} id={styles.games}>
+  //FUNÇÃO PARA DELETAR UM JOGO
+  const deleteGame = async (gameId) => {
+    try {
+      const response = await axios.delete(`http://localhost:4000/games/${gameId}`);
+      //verificando o c´digo de status que a API retorna
+      if (response.status === 204) {
+        alert("O jogo foi excluido com sucesso")
+        //Atualizando a lista de jogos do componente
+        setGames(games.filter((game) => game.id !== gameId))
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+  }
+
+
+return (
+  <>
+    <div className={styles.homeContent}>
+      {/* CARD LISTA DE JOGOS */}
+      <div className={styles.listGamesCard}>
+        {/* TITLE */}
+        <div className={styles.title}>
+          <h2>Lista de jogos</h2>
+        </div>
+        {/* Ternário para ostrar a lista de jogos ou gif de carregamento */}
+        {/* Enviando a props "loading" para o componente extero */}
+        {Loading ? (
+          <Loading loading={loading} />
+        ) : (
+          <div className={styles.games} id={styles.games}>
             {/* Lista de jogos irá aqui */}
             {games.map((game) => (
-              <ul className= {styles.listGames}>
-                <div className= {styles.gameImg}>
+              <ul className={styles.listGames}>
+                <div className={styles.gameImg}>
                   <img src="images/game_cd_cover.png" alt="Capa do jogo" />
                 </div>
-                <div className= {styles.gameInfo}>
+                <div className={styles.gameInfo}>
                   <h3>{game.title}</h3>
                   <li>Plataforma: {game.descriptions.platform}</li>
                   <li>Genero: {game.descriptions.genre}</li>
@@ -62,16 +79,32 @@ const HomeContent = () => {
                       currency: "BRL"
                     })}
                   </li>
-
+                  {/* BOTAO DE DELETAR */}
+                  <button
+                    className={style.btnDel}
+                    onClick={() => {
+                      const confirmed = window.confirm(
+                        "Deseja mesmo excluir o jogo?"
+                      );
+                      //Se o usuário cofirmar
+                      if (confirm) {
+                        deleteGame(game._id)
+                        //chamando a função que deleta o jog envando o ID
+                        deleteGame(game.id)
+                      }
+                    }}
+                  >
+                    Deletar
+                  </button>
                 </div>
               </ul>
             ))}
           </div>
-          )}
-        </div>
+        )}
       </div>
-    </>
-  );
-};
+    </div>
+  </>
+);
+}
 
 export default HomeContent;
